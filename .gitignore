@@ -1,0 +1,34 @@
+# Ignore virtual environment folder
+venv/
+
+# Ignore environment variables file
+.env
+
+# Ignore logs folder
+logs/
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore Python bytecode files
+__pycache__/
+
+# Ignore IDE configurations
+.idea/
+
+# Ignore system-specific files (for macOS)
+.DS_Store
+
+# Ignore model files (if large and not required in version control)
+model/
+
+# Ignore any image folder content (can include specific extensions if needed)
+img/
+
+# Ignore Postman and other local configuration files
+postmen.txt
+
+# Ignore the model weights
+*.h5
+*.pkl
+*.joblib
