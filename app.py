@@ -43,7 +43,6 @@ from classifier.resNext import CustomResNeXt, load_resNext_model
 from classifier.rf import load_rf_with_feature_extractor
 from classifier.service import classify_acne_image
 
-from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
 load_dotenv()
@@ -202,8 +201,6 @@ binary_classifier_model.compile(optimizer='adam', loss='categorical_crossentropy
 rf_feature_extractor, rf_model = load_rf_with_feature_extractor()
 vit_model = load_entire_vit_model()
 resNext_model = load_resNext_model()
-
-executor = ThreadPoolExecutor()  # Create a thread pool for concurrent tasks
 
 @app.route('/api/classification', methods=['POST'])
 def upload_image():
