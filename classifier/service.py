@@ -52,7 +52,7 @@ def classify_acne_image(file, binary_classifier_model, rf_feature_extractor, rf_
 
         # Extract the face using the face_extractor function
         try:
-            face_data = extract_face(open_cv_image)
+            face_data = extract_face(open_cv_image, logger= logger)
             face_image = face_data["face_image"]
             is_quality_sufficient = face_data["is_quality_sufficient"]
             logger.info("Face extracted successfully")
