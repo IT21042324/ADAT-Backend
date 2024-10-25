@@ -40,9 +40,6 @@ import EX_AI
 
 # Classifier imports
 from classifier.ViT import ViTWithDropout, load_entire_vit_model
-from classifier.acne_classifier import weighted_vote_single_image
-from classifier.classifier import predict_single_image
-from classifier.face_extractor import extract_face
 from classifier.resNext import CustomResNeXt, load_resNext_model
 from classifier.rf import load_rf_with_feature_extractor
 from classifier.service import classify_acne_image
@@ -60,6 +57,7 @@ app = Flask(__name__)
 cors = CORS(app)
 
 logger = setup_logger()
+
 
 def stringToImage(base64_string):
     format, img_str = base64_string.split(';base64,')
@@ -107,7 +105,8 @@ def upload_file():
         acne_description = description
         all_acne = total_detections
 
-        acne_analysis = acne_agent.analyze_acne_with_openai(openai_api_key, openai_model_name, yolo_detection, acne_severity,
+        acne_analysis = acne_agent.analyze_acne_with_openai(openai_api_key, openai_model_name, yolo_detection,
+                                                            acne_severity,
                                                             acne_description, all_acne)
 
         Clinical_diagnosis, AI_explanation = acne_agent.extract_info(acne_analysis)
@@ -207,6 +206,7 @@ rf_feature_extractor, rf_model = load_rf_with_feature_extractor()
 vit_model = load_entire_vit_model()
 resNext_model = load_resNext_model()
 
+
 @app.route('/api/classification', methods=['POST'])
 def upload_image():
     # Call the async function and run it synchronously using asyncio.run()
@@ -221,6 +221,7 @@ def upload_image():
     ))
 
     return result
+
 
 if __name__ == "__main__":
     app.run(debug=False)
