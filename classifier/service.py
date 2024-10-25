@@ -1,13 +1,10 @@
-# Standard library imports
 import io
 import base64
-
-# Third-party imports
+import asyncio
 import numpy as np
-import tensorflow as tf
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-# Project-specific imports (classifier module)
+# Imports from classifier module (assuming they are already defined as async)
 from classifier.ViT import load_entire_vit_model
 from classifier.acne_classifier import weighted_vote_single_image
 from classifier.classifier import predict_single_image
@@ -15,7 +12,8 @@ from classifier.face_extractor import extract_face
 from classifier.resNext import load_resNext_model
 from classifier.rf import load_rf_with_feature_extractor
 
-def classify_acne_image(file, binary_classifier_model, rf_feature_extractor, rf_model, vit_model, resNext_model, logger):
+async def classify_acne_image(file, binary_classifier_model, rf_feature_extractor, rf_model, vit_model, resNext_model,
+                              logger):
     try:
         logger.info("Received a request for image classification")
 
@@ -52,7 +50,7 @@ def classify_acne_image(file, binary_classifier_model, rf_feature_extractor, rf_
 
         # Extract the face using the face_extractor function
         try:
-            face_data = extract_face(open_cv_image, logger= logger)
+            face_data = extract_face(open_cv_image, logger=logger)
             face_image = face_data["face_image"]
             is_quality_sufficient = face_data["is_quality_sufficient"]
             logger.info("Face extracted successfully")
@@ -85,7 +83,8 @@ def classify_acne_image(file, binary_classifier_model, rf_feature_extractor, rf_
 
         # If the result is "Acne", further classify the types of acne
         if result == "Acne":
-            acne_types, probabilities = weighted_vote_single_image(
+            # Run the weighted_vote_single_image asynchronously
+            acne_types, probabilities = await weighted_vote_single_image(
                 face_image_pil,
                 rf_feature_extractor,
                 rf_model,

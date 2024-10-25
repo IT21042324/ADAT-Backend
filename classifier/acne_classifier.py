@@ -1,34 +1,60 @@
 import torch
-import numpy as np
-from torch import nn
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from PIL import Image
 from .rf import predict_single_image_rf, load_rf_with_feature_extractor
 from .ViT import predict_single_image_for_vit_softmax, load_entire_vit_model
 from .resNext import predict_single_image_with_resNext_softmax, load_resNext_model
 
+
 def get_device():
     return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 def get_classnames():
     return ['comedones', 'cysts', 'nodules', 'papules', 'pustules']
 
-def weighted_vote_single_image(image_pil, rf_feature_extractor, rf_model, vit_model, resnext_model, 
-                               class_names= get_classnames()):
+
+# Asynchronous wrapper for predicting with Random Forest
+async def async_predict_rf(image_pil, rf_feature_extractor, rf_model):
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as pool:
+        return await loop.run_in_executor(pool, predict_single_image_rf, image_pil, rf_feature_extractor, rf_model)
+
+
+# Asynchronous wrapper for predicting with ViT
+async def async_predict_vit(vit_model, image_pil, class_names):
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as pool:
+        return await loop.run_in_executor(pool, predict_single_image_for_vit_softmax, vit_model, image_pil, class_names)
+
+
+# Asynchronous wrapper for predicting with ResNeXt
+async def async_predict_resnext(resnext_model, image_pil):
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as pool:
+        return await loop.run_in_executor(pool, predict_single_image_with_resNext_softmax, resnext_model, image_pil)
+
+
+# Main function to gather predictions asynchronously and perform weighted voting
+async def weighted_vote_single_image(image_pil, rf_feature_extractor, rf_model, vit_model, resnext_model,
+                                     class_names=get_classnames()):
     # F1 scores for each model (used as weights)
     f1_scores_resnext = {'comedones': 0.87, 'cysts': 0.90, 'nodules': 0.89, 'papules': 0.89, 'pustules': 0.84}
     f1_scores_vit = {'comedones': 0.86, 'cysts': 0.92, 'nodules': 0.84, 'papules': 0.87, 'pustules': 0.75}
     f1_scores_rf = {'comedones': 0.90, 'cysts': 0.87, 'nodules': 0.80, 'papules': 0.88, 'pustules': 0.87}
-        
-    # Predict with Random Forest model
-    rf_softmax_probs = predict_single_image_rf(image_pil, rf_feature_extractor, rf_model)
+
+    # Run predictions asynchronously in parallel
+    rf_task = async_predict_rf(image_pil, rf_feature_extractor, rf_model)
+    vit_task = async_predict_vit(vit_model, image_pil, class_names)
+    resnext_task = async_predict_resnext(resnext_model, image_pil)
+
+    # Wait for all model predictions to complete
+    rf_softmax_probs, vit_softmax_probs, resnext_softmax_probs = await asyncio.gather(rf_task, vit_task, resnext_task)
+
+    # Flatten Random Forest softmax probabilities
     rf_softmax_probs = rf_softmax_probs.flatten()
-    
-    # Predict with ViT model
-    vit_softmax_probs = predict_single_image_for_vit_softmax(vit_model, image_pil, class_names)
-    
-    # Predict with ResNeXt model
-    resnext_softmax_probs = predict_single_image_with_resNext_softmax(resnext_model, image_pil)
-    
+
     # Initialize dictionaries to accumulate probabilities
     accumulated_probs = {cls: 0.0 for cls in class_names}
 
