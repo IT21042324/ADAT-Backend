@@ -10,11 +10,11 @@ import json
 from collections import defaultdict
 from io import BytesIO
 
+# Logging (if required later)
+from logger import setup_logger  # Ensure this is used somewhere in the code or remove it
+
 # Environment variables
 from dotenv import load_dotenv
-
-# Logging (not used in this code)
-from logger import setup_logger
 
 # Machine learning and image processing libraries
 import cv2
@@ -23,6 +23,10 @@ import tensorflow as tf
 from PIL import Image, ImageOps, UnidentifiedImageError
 from ultralytics import YOLO
 import matplotlib.pyplot as plt
+
+# Flask and CORS for API setup
+from flask import Flask, request, redirect
+from flask_cors import CORS
 
 # OpenAI integration
 import openai
@@ -43,6 +47,7 @@ from classifier.resNext import CustomResNeXt, load_resNext_model
 from classifier.rf import load_rf_with_feature_extractor
 from classifier.service import classify_acne_image
 
+# Asynchronous processing library
 import asyncio
 
 load_dotenv()
