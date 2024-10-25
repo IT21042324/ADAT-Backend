@@ -157,42 +157,46 @@ def EXAI():
         return {"resultex": result}
 
 
-# @app.route('/api/classification', methods=['POST'])
-# def classification():
-#     if request.method == 'POST':
-#         if 'data' not in request.json:
-#             print('No file part')
-#             return redirect(request.url)
+@app.route('/api/classificationforxai', methods=['POST'])
+def classificationforxai():
+    if request.method == 'POST':
+        if 'data' not in request.json:
+            print('No file part')
+            return redirect(request.url)
 
-#         # model_version = request.json['model_version']
+        # model_version = request.json['model_version']
 
-#         data = request.json['data']
+        data = request.json['data']
 
-#         img = data['Image']
+        img = data['Image']
 
-#         image = index.stringToImage(img)
+        image = index.stringToImage(img)
 
-#         folder_path = "img/"
-#         new_filename = "classification.png"
-#         index.save_image_to_folder(image, folder_path, new_filename)
-#         print("Loading", image)
-#         image_path = 'img/classification.png'
+        folder_path = "img/"
+        new_filename = "classification.png"
+        index.save_image_to_folder(image, folder_path, new_filename)
+        print("Loading", image)
+        image_path = 'img/classification.png'
 
-#         img, predicted_class, score, second_predicted_class, second_score = EX_AI.process_and_visualize(image_path)
-#         buffered = BytesIO()
-#         img.save(buffered, format="PNG")
-#         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        img, predicted_class, score, second_predicted_class, second_score = EX_AI.process_and_visualize(image_path)
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-#         result = {
-#             "predicted_class": predicted_class,
-#             "second_predicted_class": second_predicted_class,
-#             "score": score,
-#             'second_score': second_score,
-#             "image": img_str,
-#             "message": "xxxx"
+        result = {
+            "predicted_class": predicted_class,
+            "second_predicted_class": second_predicted_class,
+            "score": score,
+            'second_score': second_score,
+            "image": img_str,
+            "message": "xxxx"
 
-#         }
-#         return {"resulClassification": result}
+        }
+        return {"resultClassification": result}
+
+
+
+
 
 binary_classifier_model = tf.keras.models.load_model('model/binary_acne_classifier.h5', compile=False)
 binary_classifier_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -201,7 +205,7 @@ vit_model = load_entire_vit_model()
 resNext_model = load_resNext_model()
 
 @app.route('/api/classification', methods=['POST'])
-def upload_image():
+def classification():
     # Call the function from classification_service.py
     return classify_acne_image(
         file=request.files['file'],
