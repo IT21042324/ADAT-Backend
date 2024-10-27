@@ -42,17 +42,13 @@ from classifier.ViT import ViTWithDropout, load_entire_vit_model
 from classifier.resNext import CustomResNeXt, load_resNext_model
 from classifier.rf import load_rf_with_feature_extractor
 from classifier.service import classify_acne_image
-from logger import setup_logger
-logger = setup_logger()
+
 # Asynchronous processing library
 import asyncio
+from logger import setup_logger
 
 load_dotenv()
-
-openai_api_key = os.getenv("OPENAI_API_KEY")
-openai_model_name = os.getenv("OPENAI_MODEL_NAME")
-
-
+logger = setup_logger()
 
 # new ======
 import detection as detect
@@ -74,8 +70,6 @@ load_dotenv()
 
 import random
 import json
-
-
 
 def load_treatments_from_json(filename='treatment/self_treatments.json'):
     with open(filename, 'r') as file:
@@ -117,7 +111,6 @@ acne_classes = ['Cyst',
 openai.api_key = (api_key)
 app = Flask(__name__)
 cors = CORS(app)
-
 
 def stringToImage(base64_string):
     format, img_str = base64_string.split(';base64,')
@@ -212,7 +205,11 @@ def EXAI():
 
         img1,predicted_classes1,second_predicted_class2,third_predicted_class3 = EX_AI.process_and_visualize(image_path)
 
-        predicted_class, second_predicted_class, third_predicted_class = EX_AI.ViT_predict(image_path,Vit_base_model,acne_classes)
+        first_predicted_class, second_predicted_class, third_predicted_class = EX_AI.ViT_predict(image_path,Vit_base_model,acne_classes)
+
+        acne_analysis = acne_agent.analyze_acne_with_openai_XI(api_key, model_name,first_predicted_class, second_predicted_class, third_predicted_class)
+
+        Clinical_diagnosis = acne_agent.extract_info_XI(acne_analysis)
 
         buffered = BytesIO()
         img1.save(buffered, format="PNG")
@@ -220,12 +217,14 @@ def EXAI():
 
         vit_image = ViT_xai.vit_print_image_paths(image_path, vit_b16_layer)
 
+
         result = {
-            "First_Predicted_Class": predicted_class,
+            "First_Predicted_Class": first_predicted_class,
             "second_predicted_class": second_predicted_class,
             "third_predicted_class": third_predicted_class,
             "image": vit_image,
-            "img_str": img_str
+            "img_str": img_str,
+            "Clinical_diagnosis":Clinical_diagnosis
 
         }
         return {"resultex": result}
@@ -290,6 +289,7 @@ def upload_image():
     ))
 
     return result
+
 
 if __name__ == "__main__":
     app.run(debug=False, threaded=False)  # Disable multi-threading
