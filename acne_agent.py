@@ -25,13 +25,13 @@ def analyze_acne_with_openai(api_key, model_name, yolo_detection, acne_severity,
         4. Total Acne cases detected
 
         Based on this information, please strictly provide a detailed analysis including the following only:
-
+        
         1. Clinical Explanation:
            Need to give a clinical explanation Based on the AI detection results and your expert knowledge, what is the most likely diagnosis for this patient's skin condition? Provide a concise yet informative explanation.
-
+        
         2. AI Explanation:
             Interpret the AI model's outputs as a paragraph, including the detection counts, confidence levels, and severity assessment. Explain how these factors contribute to your diagnosis and what they mean for the patient's skin health.
-
+        
         Remember to maintain a professional and empathetic tone throughout your analysis. Your goal is to provide clear, actionable advice based on the AI model's output and your dermatological expertise. please don't add the *'s for the final output """
 
     response = openai.ChatCompletion.create(

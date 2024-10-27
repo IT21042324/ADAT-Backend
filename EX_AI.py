@@ -21,6 +21,34 @@ import numpy as np
 import cv2
 
 
+def ViT_predict(image_path,Vit_base_model,acne_classes):
+
+    img_InceptionV3 = image.load_img(image_path, target_size=(224, 224))
+    # convert in to array
+    vit_img_array = image.img_to_array(img_InceptionV3)
+    # expand dimentions accoding our model
+    vit_img_batch = np.expand_dims(vit_img_array, axis=0)
+    # normalize the image , for easy process
+    vit_image_np_resized_normalized = np.vstack([vit_img_batch]) / 255.0
+
+    vit_probabilities = Vit_base_model.predict(vit_image_np_resized_normalized)
+
+    vit_class_index = np.argmax(vit_probabilities)
+
+    vit_class_label = acne_classes[vit_class_index]
+    vit_confidence_score = np.max(vit_probabilities) * 100  # Multiply by 100 to get percentage
+    vit_confidence_score = round(vit_confidence_score, 2)
+
+    predicted_vector = np.squeeze(vit_probabilities)
+    top_3_indices = np.argsort(predicted_vector)[-3:][::-1]
+    predicted_classes = [target_names[int(index)] for index in top_3_indices]
+    second_predicted_class = predicted_classes[1]
+    third_predicted_class = predicted_classes[2] if len(predicted_classes) > 2 else None
+
+    print(vit_class_label)
+    return vit_class_label, second_predicted_class, third_predicted_class
+
+
 def load_image_with_preprocessing(img_path, input_size, show=False):
     img = image.load_img(img_path, target_size=input_size)
     img_tensor = image.img_to_array(img)
@@ -214,4 +242,4 @@ def process_and_visualize(read_path):
     # Convert buffer to an image
     image = Image.open(buf)
 
-    return image, predicted_class_x, second_predicted_class, third_predicted_class
+    return image,predicted_classes,second_predicted_class,third_predicted_class

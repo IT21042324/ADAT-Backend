@@ -12,7 +12,12 @@ LAST_LAYER_DENS_BACK = "conv5_block16_2_conv"
 THRESHOLD = 70
 BATCH_SIZE = 16
 Reccomentdation =  ['Immediate dermatological consultation is crucial to address the extremely severe acne condition and prevent complications such as scarring and inflammation.', 'Treatment options may include prescription medications like oral antibiotics, retinoids, or isotretinoin to target the underlying causes of severe acne.', 'In-office procedures such as corticosteroid injections or drainage of large cysts may be necessary for rapid improvement.', 'Lifestyle changes such as a gentle skincare routine, avoiding picking or squeezing lesions, and maintaining a healthy diet can support acne management.']
+
+
+
 selfTreatments =  ['Over-the-counter topical treatments containing benzoyl peroxide or salicylic acid can help reduce inflammation and unclog pores.', 'Gentle cleansing with a mild, non-comedogenic cleanser twice daily can help maintain skin hygiene.', 'Use oil-free and non-comedogenic moisturizers to keep the skin hydrated without exacerbating acne.', 'Avoid excessive sun exposure and use non-comedogenic sunscreen to protect the skin.', 'Monitor for any signs of infection or worsening of lesions and seek immediate medical attention if needed.']
+
+
 
 class SeverityBadge(Enum):
     RED = "Red"

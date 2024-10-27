@@ -11,50 +11,40 @@ from dotenv import load_dotenv
 
 def detect_and_check(image_path):
     yolo_model = YOLO("model/best.pt")
-    results = yolo_model(image_path, show=False, conf=0.2)
     names = yolo_model.names
-    class_confidences = defaultdict(list)
-
-    # Gather all confidences for each class
-    for r in results:
-        for c, conf in zip(r.boxes.cls, r.boxes.conf):
-            class_name = names[int(c)]
-            class_confidences[class_name].append(conf.item())
-
     '''Overall Detection'''
     Overall_results = yolo_model(image_path, show=False, conf=0.2)
     Oveall_class_confidences = defaultdict(list)
-
+    
     for s in Overall_results:
         for x, confx in zip(s.boxes.cls, s.boxes.conf):
             class_name = names[int(x)]
             Oveall_class_confidences[class_name].append(confx.item())
-
+            
     total_detections = sum(len(confidences) for confidences in Oveall_class_confidences.values())
     print(total_detections)
 
-    for i, r in enumerate(results):
-        im_bgr = r.plot()
-        im_rgb = Image.fromarray(im_bgr[..., ::-1])
+    for i, r in enumerate(Overall_results):
+        im_bgr = r.plot()  
+        im_rgb = Image.fromarray(im_bgr[..., ::-1]) 
         plt_image = im_rgb.convert("RGB")
 
     plt_image = index.image_to_base64(plt_image)
-
-    return total_detections, Oveall_class_confidences, plt_image
-
+ 
+    return  total_detections, Oveall_class_confidences,plt_image
 
 def Segment_and_get_area(image_path):
     # Load a pretrained YOLOv8n model
     model = YOLO("model/best.pt")
-
+    
     # Perform inference
     results = model(image_path, conf=0.1)
-
+    
     # Open the original image
     original_image = Image.open(image_path)
-
+    
     # Initialize variables
-    alpha_factor = 0.3
+    alpha_factor = 0.3 
     blue_pixel_count = 0
     total_pixels = original_image.width * original_image.height
 
@@ -75,11 +65,12 @@ def Segment_and_get_area(image_path):
 
     blue_percentage = (blue_pixel_count / total_pixels) * 100
     # original_image = index.image_to_base64(original_image)
-
+    
     return original_image, blue_percentage
 
 
-def count_base_severity(Oveall_class_confidences, percentage_acne_area):
+def count_base_severity(Oveall_class_confidences):
+
     # Initialize the summary statistics and the total severity score
     summary_stats = {}
     total_score = 0
@@ -109,14 +100,25 @@ def count_base_severity(Oveall_class_confidences, percentage_acne_area):
             total_score += detection_count * severity_scale[class_name]
 
     # Calculate severity based on detection count and severity score
-    if total_score < 15:
+    if total_score < 10:
         detection_severity = "Mild"
-    elif 15 <= total_score < 30:
+        color = "Green"
+        description = "Acne severity is mild, suggesting few inflammatory lesions and minimal scarring risk."
+
+    elif 10 <= total_score < 25:
         detection_severity = "Moderate"
-    elif 30 <= total_score < 50:
+        color = "Yellow"
+        description = "Acne severity is moderate. This condition may cause some discomfort and visible inflammation."
+
+    elif 25 <= total_score < 40:
         detection_severity = "Severe"
+        color = "Orange"
+        description = "Acne severity is severe, indicating numerous inflamed lesions and higher risk of scarring."
     else:
         detection_severity = "Extremely Severe"
+        color = "Red"
+        description = "Acne severity is extremely severe. Urgent dermatological consultation is recommended due to " \
+                      "significant risk of scarring and severe inflammation. "
 
     # # Determine severity based on percentage of acne area
     # if percentage_acne_area < 4:
@@ -135,19 +137,5 @@ def count_base_severity(Oveall_class_confidences, percentage_acne_area):
     # final_severity = max(severity_levels.index(detection_severity), severity_levels.index(area_severity))
     # combined_severity = severity_levels[final_severity]
 
-    # Set message and color based on combined severity
-    if detection_severity == "Mild":
-        color = "Green"
-        description = "Acne severity is mild, suggesting few inflammatory lesions and minimal scarring risk."
-    elif detection_severity == "Moderate":
-        color = "Yellow"
-        description = "Acne severity is moderate. This condition may cause some discomfort and visible inflammation."
-    elif detection_severity == "Severe":
-        color = "Orange"
-        description = "Acne severity is severe, indicating numerous inflamed lesions and higher risk of scarring."
-    else:
-        color = "Red"
-        description = "Acne severity is extremely severe. Urgent dermatological consultation is recommended due to " \
-                      "significant risk of scarring and severe inflammation. "
 
-    return summary_stats, detection_severity, color, description
+    return summary_stats, detection_severity , color, description
