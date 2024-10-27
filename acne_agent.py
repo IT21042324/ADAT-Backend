@@ -81,7 +81,7 @@ def analyze_acne_with_openai_XI(api_key, model_name,first_predicted_class, secon
         Based on this information, please strictly provide a detailed analysis including the following only:
 
         1. AI Explanation:
-            Interpret the AI model's outputs as a paragraph, including the first predicted class, second predicted class,and third predicted class. Explain how these factors contribute to your diagnosis and what they mean for the patient's skin health.
+            Interpret the AI model's outputs as a paragraph, including the first predicted class.Please provide a detailed description of the characteristics of the predicted acne type to the patient including external and internal factors.
         
         Remember to maintain a professional and empathetic tone throughout your analysis. Your goal is to provide clear, actionable advice based on the AI model's output and your dermatological expertise. please don't add the *'s for the final output """
 

@@ -210,7 +210,7 @@ def EXAI():
         acne_analysis = acne_agent.analyze_acne_with_openai_XI(api_key, model_name,first_predicted_class, second_predicted_class, third_predicted_class)
 
         Clinical_diagnosis = acne_agent.extract_info_XI(acne_analysis)
-
+        print(Clinical_diagnosis)
         buffered = BytesIO()
         img1.save(buffered, format="PNG")
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -224,7 +224,7 @@ def EXAI():
             "third_predicted_class": third_predicted_class,
             "image": vit_image,
             "img_str": img_str,
-            "Clinical_diagnosis":Clinical_diagnosis
+            "Clinical_diagnosis": Clinical_diagnosis
 
         }
         return {"resultex": result}
